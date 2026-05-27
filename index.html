@@ -1,228 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vadlamudi Ramana Babu | AI Agent Builder</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary: #00ff88; --bg: #0a0a0f; --card: #12121a; --border: #1e1e2e; --text: #e0e0e0; --dim: #666; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
-        
-        /* Animated background */
-        .bg-grid { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(circle at 1px 1px, #1a1a2e 1px, transparent 0); background-size: 50px 50px; opacity: 0.3; z-index: -1; }
-        .glow-orb { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.15; z-index: -1; animation: float 8s ease-in-out infinite; }
-        .glow-orb.one { top: -200px; left: -200px; background: #00ff88; }
-        .glow-orb.two { bottom: -200px; right: -200px; background: #0066ff; animation-delay: 4s; }
-        @keyframes float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(30px, 30px); } }
-        
-        /* Navigation */
-        nav { position: fixed; top: 0; width: 100%; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); background: rgba(10,10,15,0.8); border-bottom: 1px solid var(--border); z-index: 100; }
-        .logo { font-size: 1.2em; font-weight: 700; color: var(--primary); }
-        .nav-links a { color: var(--dim); text-decoration: none; margin-left: 30px; font-size: 0.9em; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--primary); }
-        
-        /* Hero */
-        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 120px 40px 80px; max-width: 1200px; margin: 0 auto; }
-        .hero-badge { display: inline-block; padding: 6px 16px; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 20px; font-size: 0.8em; color: var(--primary); margin-bottom: 20px; width: fit-content; }
-        .hero h1 { font-size: 3.5em; font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
-        .hero h1 span { color: var(--primary); }
-        .hero p { font-size: 1.2em; color: var(--dim); max-width: 600px; line-height: 1.6; margin-bottom: 30px; }
-        .hero-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
-        .btn { padding: 14px 28px; border-radius: 8px; font-size: 0.95em; font-weight: 600; text-decoration: none; transition: all 0.3s; cursor: pointer; border: none; }
-        .btn-primary { background: var(--primary); color: #000; }
-        .btn-primary:hover { background: #00cc6a; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,255,136,0.2); }
-        .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
-        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
-        
-        /* Stats */
-        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 60px 40px; max-width: 1200px; margin: 0 auto; }
-        .stat { text-align: center; padding: 30px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; transition: transform 0.3s, border-color 0.3s; }
-        .stat:hover { transform: translateY(-5px); border-color: var(--primary); }
-        .stat-number { font-size: 2.5em; font-weight: 800; color: var(--primary); }
-        .stat-label { font-size: 0.85em; color: var(--dim); margin-top: 5px; }
-        
-        /* Sections */
-        section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
-        .section-title { font-size: 2em; font-weight: 700; margin-bottom: 10px; }
-        .section-subtitle { color: var(--dim); margin-bottom: 40px; }
-        
-        /* Services */
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .service-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 30px; transition: all 0.3s; position: relative; overflow: hidden; }
-        .service-card:hover { border-color: var(--primary); transform: translateY(-5px); }
-        .service-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--primary), #0066ff); opacity: 0; transition: opacity 0.3s; }
-        .service-card:hover::before { opacity: 1; }
-        .service-icon { font-size: 2em; margin-bottom: 15px; }
-        .service-card h3 { font-size: 1.1em; margin-bottom: 10px; }
-        .service-card p { font-size: 0.9em; color: var(--dim); line-height: 1.5; }
-        .service-price { margin-top: 15px; color: var(--primary); font-weight: 700; font-size: 1.1em; }
-        
-        /* Skills */
-        .skills-container { display: flex; flex-wrap: wrap; gap: 10px; }
-        .skill-pill { padding: 8px 18px; background: var(--card); border: 1px solid var(--border); border-radius: 25px; font-size: 0.85em; transition: all 0.3s; }
-        .skill-pill:hover { border-color: var(--primary); color: var(--primary); background: rgba(0,255,136,0.05); }
-        
-        /* Projects */
-        .project-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; margin-bottom: 15px; transition: all 0.3s; }
-        .project-card:hover { border-color: var(--primary); }
-        .project-card h3 { color: var(--primary); margin-bottom: 8px; }
-        .project-card p { color: var(--dim); font-size: 0.9em; }
-        .project-tag { display: inline-block; padding: 3px 10px; background: rgba(0,255,136,0.1); border-radius: 12px; font-size: 0.75em; color: var(--primary); margin-right: 8px; margin-top: 10px; }
-        
-        /* CTA */
-        .cta-section { text-align: center; padding: 100px 40px; }
-        .cta-section h2 { font-size: 2.5em; margin-bottom: 15px; }
-        .cta-section p { color: var(--dim); margin-bottom: 30px; font-size: 1.1em; }
-        
-        /* Footer */
-        footer { padding: 40px; text-align: center; border-top: 1px solid var(--border); color: var(--dim); font-size: 0.85em; }
-        footer a { color: var(--primary); text-decoration: none; margin: 0 15px; }
-        
-        /* Responsive */
-        @media (max-width: 768px) { 
-            .hero h1 { font-size: 2.2em; } 
-            .stats { grid-template-columns: repeat(2, 1fr); } 
-            nav { padding: 15px 20px; }
-            .nav-links a { margin-left: 15px; font-size: 0.8em; }
-        }
-        
-        /* Animations */
-        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeIn 0.6s forwards; }
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
-        .fade-in:nth-child(2) { animation-delay: 0.1s; }
-        .fade-in:nth-child(3) { animation-delay: 0.2s; }
-        .fade-in:nth-child(4) { animation-delay: 0.3s; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Vadlamudi Ramana Babu builds AI agents, automation systems, Telegram bots, WhatsApp agents, LLM evaluation workflows, and business automation tools." />
+  <meta name="theme-color" content="#00ff88" />
+  <title>Vadlamudi Ramana Babu | AI Automation & Agent Builder</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #07070c;
+      --bg-soft: #0d0d16;
+      --card: #12121d;
+      --card-2: #171727;
+      --border: #25253a;
+      --text: #f5f7fb;
+      --muted: #a2a6b8;
+      --dim: #70758a;
+      --primary: #00ff88;
+      --primary-soft: rgba(0, 255, 136, 0.12);
+      --blue: #5b8cff;
+      --shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(0, 255, 136, 0.16), transparent 28%),
+        radial-gradient(circle at 80% 0%, rgba(91, 140, 255, 0.16), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(0, 255, 136, 0.08), transparent 35%),
+        linear-gradient(180deg, #07070c 0%, #090912 100%);
+      z-index: -3;
+    }
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.2));
+      z-index: -2;
+    }
+    a { color: inherit; }
+    .container { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(7, 7, 12, 0.78);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.03em; }
+    .brand-mark { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--primary); color: #030305; font-weight: 900; box-shadow: 0 0 34px rgba(0,255,136,0.3); }
+    .nav-links { display: flex; gap: 22px; align-items: center; color: var(--muted); font-size: 0.94rem; }
+    .nav-links a { text-decoration: none; transition: color .2s ease; }
+    .nav-links a:hover { color: var(--primary); }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(0,255,136,0.28);
+      background: var(--primary-soft);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: .84rem;
+      font-weight: 700;
+      width: fit-content;
+    }
+    .hero { padding: 92px 0 54px; }
+    .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 38px; align-items: center; }
+    h1 { font-size: clamp(2.55rem, 6vw, 5.2rem); line-height: .98; letter-spacing: -0.075em; margin: 20px 0; }
+    .gradient { background: linear-gradient(90deg, var(--primary), #b6ffd9 38%, var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { max-width: 690px; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.25rem); margin-bottom: 26px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin: 28px 0 30px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 20px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 800;
+      border: 1px solid var(--border);
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); border-color: var(--primary); }
+    .btn-primary { background: var(--primary); color: #030305; border-color: var(--primary); box-shadow: 0 18px 50px rgba(0,255,136,.22); }
+    .btn-secondary { background: rgba(255,255,255,.035); color: var(--text); }
+    .mini-row { display: flex; flex-wrap: wrap; gap: 10px; color: var(--dim); font-size: .94rem; }
+    .mini-row span { border: 1px solid rgba(255,255,255,.08); padding: 7px 11px; border-radius: 999px; background: rgba(255,255,255,.025); }
+    .hero-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+      border: 1px solid rgba(255,255,255,.11);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::before { content: ""; position: absolute; inset: -1px; background: radial-gradient(circle at 20% 0%, rgba(0,255,136,.24), transparent 35%); pointer-events: none; }
+    .terminal { position: relative; background: #08080d; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+    .terminal-top { display: flex; gap: 7px; padding: 13px 15px; border-bottom: 1px solid var(--border); }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--dim); }
+    .terminal-body { padding: 20px; font-family: "SFMono-Regular", Consolas, monospace; color: #d8ffe9; font-size: .9rem; }
+    .terminal-body p { margin-bottom: 10px; }
+    .green { color: var(--primary); }
+    .blue { color: #8eb0ff; }
+    .section { padding: 70px 0; }
+    .section-head { display: flex; justify-content: space-between; gap: 20px; align-items: end; margin-bottom: 28px; }
+    h2 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.05em; line-height: 1.05; }
+    .subtitle { color: var(--muted); max-width: 610px; margin-top: 10px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 34px; }
+    .stat, .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 22px;
+      padding: 24px;
+    }
+    .stat strong { display: block; font-size: 2.25rem; color: var(--primary); line-height: 1; letter-spacing: -0.05em; }
+    .stat span { color: var(--muted); font-size: .92rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .card h3 { font-size: 1.13rem; margin-bottom: 8px; }
+    .card p { color: var(--muted); font-size: .96rem; }
+    .price { color: var(--primary); font-weight: 900; margin-top: 14px; }
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .tag { font-size: .78rem; color: var(--primary); border: 1px solid rgba(0,255,136,.2); background: rgba(0,255,136,.06); padding: 5px 9px; border-radius: 999px; }
+    .project { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+    .project a { color: var(--primary); text-decoration: none; font-weight: 800; white-space: nowrap; }
+    .stack { display: flex; flex-wrap: wrap; gap: 10px; }
+    .stack span { padding: 9px 13px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); color: var(--muted); }
+    .process { counter-reset: step; }
+    .process .card { position: relative; }
+    .process .card::before { counter-increment: step; content: "0" counter(step); display: inline-flex; margin-bottom: 18px; color: #030305; background: var(--primary); font-weight: 900; padding: 4px 9px; border-radius: 999px; }
+    .cta { text-align: center; padding: 80px 28px; background: linear-gradient(135deg, rgba(0,255,136,.13), rgba(91,140,255,.12)); border: 1px solid rgba(255,255,255,.1); border-radius: 32px; box-shadow: var(--shadow); }
+    .cta p { color: var(--muted); max-width: 680px; margin: 14px auto 26px; }
+    footer { border-top: 1px solid rgba(255,255,255,.08); padding: 32px 0; color: var(--dim); }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    footer a { color: var(--muted); text-decoration: none; margin-left: 16px; }
+    footer a:hover { color: var(--primary); }
+    @media (max-width: 860px) {
+      .hero-grid, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .nav-links { display: none; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .project { flex-direction: column; }
+    }
+    @media (max-width: 520px) {
+      .container { width: min(100% - 28px, 1120px); }
+      .hero { padding-top: 62px; }
+      .stats { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
+      .hero-card { padding: 16px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="bg-grid"></div>
-    <div class="glow-orb one"></div>
-    <div class="glow-orb two"></div>
-    
-    <nav>
-        <div class="logo">VRB.</div>
-        <div class="nav-links">
-            <a href="#services">Services</a>
-            <a href="#projects">Projects</a>
-            <a href="#skills">Skills</a>
-            <a href="#contact">Contact</a>
-        </div>
-    </nav>
-    
-    <div class="hero">
-        <div class="hero-badge">Available for hire</div>
-        <h1 class="fade-in">I build <span>AI agents</span> that work while you sleep</h1>
-        <p class="fade-in">AI Data Ops Specialist & Agent Builder from Hyderabad. I create intelligent automation systems, Telegram bots, and AI workflows that run 24/7.</p>
-        <div class="hero-buttons fade-in">
-            <a href="https://t.me/leonv26" class="btn btn-primary">Hire Me on Telegram</a>
-            <a href="#projects" class="btn btn-secondary">View My Work</a>
-        </div>
+  <div class="grid-bg"></div>
+
+  <nav class="nav">
+    <div class="container nav-inner">
+      <div class="brand"><div class="brand-mark">VRB</div><span>Ramana Babu</span></div>
+      <div class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#projects">Projects</a>
+        <a href="#stack">Stack</a>
+        <a href="#contact">Contact</a>
+      </div>
     </div>
-    
-    <div class="stats">
-        <div class="stat fade-in"><div class="stat-number">52+</div><div class="stat-label">AI Tools Mastered</div></div>
-        <div class="stat fade-in"><div class="stat-number">5</div><div class="stat-label">Production Bots Live</div></div>
-        <div class="stat fade-in"><div class="stat-number">1+</div><div class="stat-label">Years AI Experience</div></div>
-        <div class="stat fade-in"><div class="stat-number">24/7</div><div class="stat-label">Automation Running</div></div>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="pill">⚡ AI Automation Builder • Available for projects</div>
+          <h1>I build <span class="gradient">AI agents</span> that save time, capture leads, and run 24/7.</h1>
+          <p class="lead">I am Vadlamudi Ramana Babu, an AI automation and agent builder focused on practical business systems: bots, lead workflows, browser agents, LLM evals, document extraction, CRM automation, and internal AI tools.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://t.me/leonv26" target="_blank" rel="noreferrer">Hire me on Telegram</a>
+            <a class="btn btn-secondary" href="https://github.com/ramvadlamudi22-dev" target="_blank" rel="noreferrer">View GitHub</a>
+          </div>
+          <div class="mini-row">
+            <span>AI Agents</span><span>Automation</span><span>Telegram/WhatsApp Bots</span><span>LLM Workflows</span>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="terminal">
+            <div class="terminal-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+            <div class="terminal-body">
+              <p><span class="green">$</span> launch_ai_system --goal "more leads"</p>
+              <p><span class="blue">✓</span> Research agent connected</p>
+              <p><span class="blue">✓</span> Lead capture + qualification workflow</p>
+              <p><span class="blue">✓</span> CRM follow-up automation</p>
+              <p><span class="blue">✓</span> Telegram alerts + daily report</p>
+              <p><span class="green">status:</span> running 24/7</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container stats">
+        <div class="stat"><strong>20+</strong><span>AI automation repo concepts</span></div>
+        <div class="stat"><strong>24/7</strong><span>agent-style workflow mindset</span></div>
+        <div class="stat"><strong>5+</strong><span>bot and assistant use cases</span></div>
+        <div class="stat"><strong>1</strong><span>goal: useful products, fast</span></div>
+      </div>
+    </header>
+
+    <section class="section" id="services">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Services I can build</h2>
+            <p class="subtitle">Practical AI systems for founders, agencies, creators, recruiters, support teams, and small businesses.</p>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="card"><h3>🤖 AI Chatbots & Assistants</h3><p>Telegram, WhatsApp, website, and internal support bots with memory, tools, routing, and human handoff.</p><div class="price">Best for: support + lead capture</div></div>
+          <div class="card"><h3>📈 AI SDR & Lead Recovery</h3><p>Outbound messages, follow-ups, lead scoring, proposal generation, CRM updates, and alerts for hot leads.</p><div class="price">Best for: agencies + sales teams</div></div>
+          <div class="card"><h3>🧠 LLM Evals & QA</h3><p>Evaluation datasets, prompt testing, output scoring, regression checks, and observability for AI apps.</p><div class="price">Best for: AI products</div></div>
+          <div class="card"><h3>🧾 Document Extraction</h3><p>Extract structured data from PDFs, invoices, forms, resumes, insurance docs, and business documents.</p><div class="price">Best for: back office automation</div></div>
+          <div class="card"><h3>🌐 Browser Agents</h3><p>Automate repetitive browser workflows, research collection, data entry, compliance checks, and reports.</p><div class="price">Best for: operations teams</div></div>
+          <div class="card"><h3>🚀 MVP Automation Stack</h3><p>Fast prototype to working MVP: frontend, backend workflow, database, auth, AI provider, deployment notes.</p><div class="price">Best for: startup ideas</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="projects">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Project directions</h2>
+            <p class="subtitle">A focused set of build areas from my GitHub work and automation experiments.</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card project"><div><h3>Voice AI Receptionist</h3><p>AI receptionist concept for calls, intake, appointment booking, and business FAQs.</p><div class="tag-row"><span class="tag">Voice AI</span><span class="tag">Scheduling</span><span class="tag">Business Ops</span></div></div><a href="https://github.com/ramvadlamudi22-dev/voice-ai-receptionist" target="_blank" rel="noreferrer">Repo →</a></div>
+          <div class="card project"><div><h3>AI SDR Outbound System</h3><p>Outbound sales automation with lead qualification, follow-up sequences, and CRM style workflows.</p><div class="tag-row"><span class="tag">Sales</span><span class="tag">Leads</span><span class="tag">Automation</span></div></div><a href="https://github.com/ramvadlamudi22-dev/ai-sdr-outbound-system" target="_blank" rel="noreferrer">Repo →</a></div>
+          <div class="card project"><div><h3>LLM Evals & Observability</h3><p>Evaluation and monitoring workflows for prompts, AI output quality, and model behavior.</p><div class="tag-row"><span class="tag">LLM Evals</span><span class="tag">QA</span><span class="tag">Observability</span></div></div><a href="https://github.com/ramvadlamudi22-dev/llm-evals-observability" target="_blank" rel="noreferrer">Repo →</a></div>
+          <div class="card project"><div><h3>AI Automation Agency Stack</h3><p>A reusable stack for selling AI automation services with repeatable delivery systems.</p><div class="tag-row"><span class="tag">Agency</span><span class="tag">MVP</span><span class="tag">Automation</span></div></div><a href="https://github.com/ramvadlamudi22-dev/ai-automation-agency-stack" target="_blank" rel="noreferrer">Repo →</a></div>
+          <div class="card project"><div><h3>Document Extraction Engine</h3><p>AI-assisted document parsing, extraction, and structured data workflows for operations.</p><div class="tag-row"><span class="tag">PDF</span><span class="tag">Data</span><span class="tag">Ops</span></div></div><a href="https://github.com/ramvadlamudi22-dev/document-extraction-engine" target="_blank" rel="noreferrer">Repo →</a></div>
+          <div class="card project"><div><h3>Programmatic SEO Engine</h3><p>System concept for generating SEO landing pages, content clusters, and scalable organic acquisition.</p><div class="tag-row"><span class="tag">SEO</span><span class="tag">Content</span><span class="tag">Growth</span></div></div><a href="https://github.com/ramvadlamudi22-dev/programmatic-seo-engine" target="_blank" rel="noreferrer">Repo →</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="stack">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Tools & stack</h2>
+            <p class="subtitle">I focus on shipping useful systems using modern AI tools, automation platforms, and lightweight web stacks.</p>
+          </div>
+        </div>
+        <div class="stack">
+          <span>Python</span><span>JavaScript</span><span>HTML/CSS</span><span>Telegram Bots</span><span>WhatsApp Workflows</span><span>OpenAI-style APIs</span><span>Groq</span><span>LLM Prompts</span><span>Agent Workflows</span><span>Browser Automation</span><span>CRM Automation</span><span>Data Extraction</span><span>GitHub</span><span>Vercel/GitHub Pages</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section process" id="process">
+      <div class="container">
+        <div class="section-head"><div><h2>How I work</h2><p class="subtitle">Fast, practical, and outcome-focused. I prefer building something usable instead of over-planning forever.</p></div></div>
+        <div class="grid-3">
+          <div class="card"><h3>Understand the workflow</h3><p>We identify the repetitive task, the users, inputs, outputs, and what success looks like.</p></div>
+          <div class="card"><h3>Build the first working version</h3><p>I design the flow, connect AI/tools, add basic UI or bot interface, and make it testable.</p></div>
+          <div class="card"><h3>Improve and automate</h3><p>We add memory, logging, alerts, evals, better prompts, and reliability improvements.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="cta">
+          <div class="pill">Open to AI automation projects</div>
+          <h2>Have a workflow you want to automate?</h2>
+          <p>Send me the task, the current manual steps, and the result you want. I will help turn it into a bot, agent, or automation system.</p>
+          <div class="hero-actions" style="justify-content:center">
+            <a class="btn btn-primary" href="https://t.me/leonv26" target="_blank" rel="noreferrer">Message me on Telegram</a>
+            <a class="btn btn-secondary" href="https://github.com/ramvadlamudi22-dev" target="_blank" rel="noreferrer">GitHub Profile</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div>© 2026 Vadlamudi Ramana Babu. AI Automation & Agent Builder.</div>
+      <div><a href="https://github.com/ramvadlamudi22-dev" target="_blank" rel="noreferrer">GitHub</a><a href="https://t.me/leonv26" target="_blank" rel="noreferrer">Telegram</a></div>
     </div>
-    
-    <section id="services">
-        <h2 class="section-title">Services</h2>
-        <p class="section-subtitle">What I can build for you</p>
-        <div class="services-grid">
-            <div class="service-card fade-in">
-                <div class="service-icon">🤖</div>
-                <h3>AI Telegram & WhatsApp Bots</h3>
-                <p>Custom AI-powered bots with memory, scheduling, and intelligent auto-replies for your business.</p>
-                <div class="service-price">From $50</div>
-            </div>
-            <div class="service-card fade-in">
-                <div class="service-icon">⚡</div>
-                <h3>AI Skills & CLAUDE.md Packs</h3>
-                <p>Production-grade skill packs that make Claude Code, Cursor, and Copilot 10x better for your workflow.</p>
-                <div class="service-price">From $40</div>
-            </div>
-            <div class="service-card fade-in">
-                <div class="service-icon">🔍</div>
-                <h3>LLM Evaluation & Data QA</h3>
-                <p>Professional AI output evaluation, data annotation, red-teaming, and quality assurance.</p>
-                <div class="service-price">From $60</div>
-            </div>
-            <div class="service-card fade-in">
-                <div class="service-icon">🚀</div>
-                <h3>Full AI Automation Systems</h3>
-                <p>End-to-end automation: content pipelines, research agents, browser bots, scheduled workflows.</p>
-                <div class="service-price">From $200</div>
-            </div>
-        </div>
-    </section>
-    
-    <section id="projects">
-        <h2 class="section-title">Projects</h2>
-        <p class="section-subtitle">Real systems running in production</p>
-        <div class="project-card fade-in">
-            <h3>AI Agent Hub — 52-Tool Automation System</h3>
-            <p>Built a complete AI automation platform with auto-updating, multi-agent orchestration, scheduled tasks, and a desktop control panel.</p>
-            <span class="project-tag">Python</span><span class="project-tag">LangGraph</span><span class="project-tag">ChromaDB</span><span class="project-tag">52 Tools</span>
-        </div>
-        <div class="project-card fade-in">
-            <h3>Telegram Bot Suite — 5 Production Bots</h3>
-            <p>Personal AI assistant with memory, code generation bot, deep research agent, client proposal writer, and automated content channel.</p>
-            <span class="project-tag">Groq AI</span><span class="project-tag">Telegram API</span><span class="project-tag">Memory</span><span class="project-tag">Auto-posting</span>
-        </div>
-        <div class="project-card fade-in">
-            <h3>AI Content Channel — @ai_tech_leon</h3>
-            <p>Fully automated Telegram channel posting 3x daily AI/tech content. Zero manual intervention. Runs on scheduled tasks.</p>
-            <span class="project-tag">Automation</span><span class="project-tag">Content AI</span><span class="project-tag">Scheduling</span>
-        </div>
-        <div class="project-card fade-in">
-            <h3>Browser Automation Agent</h3>
-            <p>AI-powered browser agent using Playwright and browser-use that navigates websites, fills forms, and extracts data autonomously.</p>
-            <span class="project-tag">Playwright</span><span class="project-tag">browser-use</span><span class="project-tag">Automation</span>
-        </div>
-    </section>
-    
-    <section id="skills">
-        <h2 class="section-title">Tech Stack</h2>
-        <p class="section-subtitle">Tools and technologies I work with daily</p>
-        <div class="skills-container">
-            <span class="skill-pill">Python</span>
-            <span class="skill-pill">LLM Evaluation</span>
-            <span class="skill-pill">RLHF</span>
-            <span class="skill-pill">AI Agents</span>
-            <span class="skill-pill">LangGraph</span>
-            <span class="skill-pill">Pydantic AI</span>
-            <span class="skill-pill">ChromaDB</span>
-            <span class="skill-pill">LlamaIndex</span>
-            <span class="skill-pill">Playwright</span>
-            <span class="skill-pill">browser-use</span>
-            <span class="skill-pill">Telegram API</span>
-            <span class="skill-pill">MCP Protocol</span>
-            <span class="skill-pill">FastAPI</span>
-            <span class="skill-pill">Prompt Engineering</span>
-            <span class="skill-pill">Data Annotation</span>
-            <span class="skill-pill">PHI Redaction</span>
-            <span class="skill-pill">AI Safety</span>
-            <span class="skill-pill">Groq</span>
-            <span class="skill-pill">OpenAI</span>
-            <span class="skill-pill">Docker</span>
-            <span class="skill-pill">Git</span>
-            <span class="skill-pill">Streamlit</span>
-        </div>
-    </section>
-    
-    <section class="cta-section" id="contact">
-        <h2>Let's build something <span style="color: var(--primary)">intelligent</span></h2>
-        <p>Ready to automate your business with AI? Let's talk.</p>
-        <a href="https://t.me/leonv26" class="btn btn-primary">Message me on Telegram</a>
-    </section>
-    
-    <footer>
-        <a href="https://t.me/ai_tech_leon">Telegram Channel</a>
-        <a href="https://linkedin.com/in/vadlamudi-ramana-babu-5447a53a8">LinkedIn</a>
-        <a href="https://github.com/ramvadlamudi22-dev">GitHub</a>
-        <p style="margin-top: 20px;">© 2026 Vadlamudi Ramana Babu. Built with AI.</p>
-    </footer>
+  </footer>
 </body>
 </html>
